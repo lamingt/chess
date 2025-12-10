@@ -1,4 +1,4 @@
-1. [] Complete pygame representation 
+1. [X] Complete pygame representation 
 2. [] Legal move generator using bitboards
 3. [] Make legal move generator compatable with pygame representation
 4. [] Implement basic piece evaluation

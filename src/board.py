@@ -42,3 +42,36 @@ class Board:
         
     def get_occupancy(self) -> np.uint64:
         return np.bitwise_or.reduce(self.bitboards, axis=None)
+    
+    def make_move(self, source: int, dest: int) -> None:
+        moved_piece_type = None
+        moved_piece_colour = None
+        found = False
+        
+        # Finding piece and colour of source square
+        for colour in Colour:
+            for piece in Piece:
+                if (self.bitboards[colour][piece] >> np.uint64(source)) & np.uint64(1):
+                    found = True
+                    moved_piece_type = piece
+                    moved_piece_colour = colour
+                    break
+            if found:
+                break
+            
+        if not found:
+            return
+            
+        # Checking capture of own pieces
+        for piece in Piece:
+            if (self.bitboards[moved_piece_colour][piece] >> np.uint64(dest)) & np.uint64(1):
+                return
+        
+        # Capturing opponent pieces
+        opponent_colour = Colour.WHITE if moved_piece_colour == Colour.BLACK else Colour.BLACK
+        for piece in Piece:
+            if (self.bitboards[opponent_colour][piece] >> np.uint64(dest)) & np.uint64(1):
+                self.bitboards[opponent_colour][piece] ^= (np.uint64(1) << np.uint64(dest))
+                
+        # Moving the piece
+        self.bitboards[moved_piece_colour][moved_piece_type] ^= (((np.uint64(1)) << np.uint64(source)) | (np.uint64(1) << np.uint64(dest)))

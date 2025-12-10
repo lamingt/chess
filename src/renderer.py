@@ -13,7 +13,6 @@ class Renderer:
         pygame.display.set_caption("Chess")
         self.clock = pygame.time.Clock()
         
-        # Both dicts have keys of (colour, piece)
         self.images = {}
         self.pieces = {}
         self.active_piece_index = None
@@ -42,6 +41,7 @@ class Renderer:
                 pygame.draw.rect(self.screen, colour, (row * GAME_SQUARE_SIZE, col * GAME_SQUARE_SIZE, GAME_SQUARE_SIZE, GAME_SQUARE_SIZE))
     
     def draw_pieces(self):
+        active_piece_data = None
         for colour in Colour:
             for piece in Piece:
                 bitboard = self.board.bitboards[colour][piece]
@@ -49,7 +49,16 @@ class Renderer:
                 
                 for square in range(64):
                     if (bitboard >> np.uint64(square)) & np.uint64(1) == 1:
-                        self.draw_single_piece(square, colour, piece)
+                        if square == self.active_piece_index:
+                            # Saving information so the active piece has a higher z-index than other pieces
+                            # when it is drawn last
+                            active_piece_data = (colour, piece)
+                        else:
+                            self.draw_single_piece(square, colour, piece)
+        
+        if active_piece_data is not None and self.active_piece_index is not None:
+            colour, piece = active_piece_data
+            self.draw_single_piece(self.active_piece_index, colour, piece)
                         
     def draw_single_piece(self, square: int, colour: Colour, piece: Piece):
         if square == self.active_piece_index:
@@ -81,7 +90,18 @@ class Renderer:
                     if self.active_piece_index is not None:
                         self.pieces[self.active_piece_index].move_ip(event.rel)
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    # When I release, I need to find the closest square, and update the bitboard for that piece
+                    if self.active_piece_index is None:
+                        continue
+                    
+                    x, y = event.pos
+                    col = x // GAME_SQUARE_SIZE
+                    row = y // GAME_SQUARE_SIZE
+                    if 0 <= col < 8 and 0 <= row < 8:
+                        rank = 7 - row
+                        new_square_index = rank * 8 + col
+                        if new_square_index != self.active_piece_index:
+                            self.board.make_move(self.active_piece_index, new_square_index)
+                    
                     self.active_piece_index = None
                     
                 
