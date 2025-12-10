@@ -34,11 +34,11 @@ class Board:
         self.bitboards[Colour.WHITE][Piece.ROOK] = np.uint64(0b10000001)
         self.bitboards[Colour.BLACK][Piece.ROOK] = np.uint64(0b10000001) << np.uint64(56)
          
-        self.bitboards[Colour.WHITE][Piece.QUEEN] = np.uint64(0b00010000)
-        self.bitboards[Colour.BLACK][Piece.QUEEN] = np.uint64(0b00010000) << np.uint64(56)
+        self.bitboards[Colour.WHITE][Piece.QUEEN] = np.uint64(0b00001000)
+        self.bitboards[Colour.BLACK][Piece.QUEEN] = np.uint64(0b00001000) << np.uint64(56)
         
-        self.bitboards[Colour.WHITE][Piece.KING] = np.uint64(0b00001000)
-        self.bitboards[Colour.BLACK][Piece.KING] = np.uint64(0b00001000) << np.uint64(56)
+        self.bitboards[Colour.WHITE][Piece.KING] = np.uint64(0b00010000)
+        self.bitboards[Colour.BLACK][Piece.KING] = np.uint64(0b00010000) << np.uint64(56)
         
     def get_occupancy(self) -> np.uint64:
         return np.bitwise_or.reduce(self.bitboards, axis=None)

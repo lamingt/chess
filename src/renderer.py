@@ -33,7 +33,7 @@ class Renderer:
                 
     
     def draw_squares(self):
-        colours = [pygame.Color(118, 150, 86), pygame.Color(238, 238, 210)]
+        colours = [pygame.Color(238, 238, 210), pygame.Color(118, 150, 86)]
         
         for row in range(8):
             for col in range(8):
