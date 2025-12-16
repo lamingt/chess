@@ -40,3 +40,43 @@ class Colour(IntEnum):
             return "b"
         else:
             return ""
+        
+        
+class Rank(IntEnum):
+    ONE = 0
+    TWO = 1
+    THREE = 2
+    FOUR = 3
+    FIVE = 4
+    SIX = 5
+    SEVEN = 6
+    EIGHT = 7
+  
+    
+class File(IntEnum):
+    A = 0
+    B = 1
+    C = 2
+    D = 3
+    E = 4
+    F = 5
+    G = 6
+    H = 7
+   
+    
+class Direction(IntEnum):
+    N = 0
+    NE = 1
+    E = 2
+    SE = 3
+    S = 4
+    SW = 5
+    W = 6
+    NW = 7
+    
+
+class Castling(IntEnum):
+    WK = 1
+    WQ = 2
+    BK = 4
+    BQ = 8
