@@ -1,6 +1,7 @@
 import numpy as np
 from constants import Piece, Colour
 from move_generator import MoveGenerator
+from bitboard_helper import get_lsb_index
 
 """
 56 57 58 59 60 61 62 63         A8 B8 C8 D8 E8 F8 G8 H8
@@ -43,6 +44,7 @@ class Board:
         
         self.reset_board()
         
+        
     def reset_board(self):
         self.bitboards.fill(0)
         
@@ -64,12 +66,32 @@ class Board:
         self.bitboards[Colour.WHITE][Piece.KING] = np.uint64(0b00010000)
         self.bitboards[Colour.BLACK][Piece.KING] = np.uint64(0b00010000) << np.uint64(56)
         
+        
     def get_occupancy(self) -> np.uint64:
         return np.bitwise_or.reduce(self.bitboards, axis=None)
+    
     
     def get_colour_occupancy(self, colour: Colour) -> np.uint64:
         return np.bitwise_or.reduce(self.bitboards[colour], axis=None)
     
+    
+    def is_slider(self, index: int, colour: Colour) -> bool:
+        return ((self.bitboards[colour][Piece.BISHOP] >> index) & 1) or ((self.bitboards[colour][Piece.ROOK] >> index) & 1) or ((self.bitboards[colour][Piece.QUEEN] >> index) & 1)
+    
+    
+    def get_piece_at(self, index: int, colour: Colour | None = None) -> Piece | None:
+        if colour:
+            for piece in Piece:
+                if self.bitboards[colour][piece] & (1 << index):
+                    return piece
+        else:
+            for colour in Colour:
+                for piece in Piece:
+                    if self.bitboards[colour][piece] & (1 << index):
+                        return piece
+        
+        return None
+        
     def make_move(self, source: int, dest: int) -> None:
         moved_piece_type = None
         moved_piece_colour = None

@@ -41,6 +41,10 @@ class Colour(IntEnum):
         else:
             return ""
         
+    @property
+    def opposite(self):
+        return Colour(self.value ^ 1)
+        
         
 class Rank(IntEnum):
     ONE = 0
@@ -74,9 +78,49 @@ class Direction(IntEnum):
     W = 6
     NW = 7
     
-
+    @property
+    def opposite(self):
+        if self.value - 4 >= 0:
+            return Direction(self.value - 4)
+        else:
+            return Direction(self.value + 4)
+    
 class Castling(IntEnum):
     WK = 1
     WQ = 2
     BK = 4
     BQ = 8
+    
+
+'''
+    0 	0 	0 	0 	0 	quiet moves
+    1 	0 	0 	0 	1 	double pawn push
+    2 	0 	0 	1 	0 	king castle
+    3 	0 	0 	1 	1 	queen castle
+    4 	0 	1 	0 	0 	captures
+    5 	0 	1 	0 	1 	ep-capture
+    8 	1 	0 	0 	0 	knight-promotion
+    9 	1 	0 	0 	1 	bishop-promotion
+    10 	1 	0 	1 	0 	rook-promotion
+    11 	1 	0 	1 	1 	queen-promotion
+    12 	1 	1 	0 	0 	knight-promo capture
+    13 	1 	1 	0 	1 	bishop-promo capture
+    14 	1 	1 	1 	0 	rook-promo capture
+    15 	1 	1 	1 	1 	queen-promo capture 
+'''
+
+class MoveFlags(IntEnum):
+    QUIET = 0
+    DBL_PAWN_PUSH = 1
+    KING_CASTLE = 2
+    QUEEN_CASTLE = 3
+    CAPTURE = 4
+    EP_CAPTURE = 5
+    KNIGHT_PROMOTION = 8
+    BISHOP_PROMOTION = 9
+    ROOK_PROMOTION = 10
+    QUEEN_PROMOTION = 11
+    KNIGHT_PROMOTION_CAPTURE = 12
+    BISHOP_PROMOTION_CAPTURE = 13
+    ROOK_PROMOTION_CAPTURE = 14
+    QUEEN_PROMOTION_CAPTURE = 15

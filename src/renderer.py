@@ -2,11 +2,15 @@ import pygame
 import numpy as np
 from pathlib import Path
 from board import Board
+from move_generator import MoveGenerator
+from move import decode_flag, decode_source, decode_target
 from constants import GAME_HEIGHT, GAME_WIDTH, GAME_SQUARE_SIZE, Piece, Colour
 
 class Renderer:
-    def __init__(self, board: Board):
+    def __init__(self, board: Board, move_generator: MoveGenerator):
         self.board = board
+        self.move_generator = move_generator
+        self.turn = Colour.WHITE
 
         pygame.init()
         self.screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
@@ -40,6 +44,7 @@ class Renderer:
                 colour = colours[(row + col) % 2]
                 pygame.draw.rect(self.screen, colour, (row * GAME_SQUARE_SIZE, col * GAME_SQUARE_SIZE, GAME_SQUARE_SIZE, GAME_SQUARE_SIZE))
     
+    
     def draw_pieces(self):
         active_piece_data = None
         for colour in Colour:
@@ -59,6 +64,7 @@ class Renderer:
         if active_piece_data is not None and self.active_piece_index is not None:
             colour, piece = active_piece_data
             self.draw_single_piece(self.active_piece_index, colour, piece)
+                    
                         
     def draw_single_piece(self, square: int, colour: Colour, piece: Piece):
         if square == self.active_piece_index:
@@ -75,6 +81,18 @@ class Renderer:
                 self.pieces[square] = pygame.Rect(x, y, GAME_SQUARE_SIZE, GAME_SQUARE_SIZE)
                 self.screen.blit(img, (x, y))
     
+    
+    def find_matching_move(self, start_sq, end_sq) -> np.int16 | None:
+        legal_moves = self.move_generator.get_legal_moves(self.board, self.turn)
+        for move in legal_moves:
+            source_sq = decode_source(move)
+            target_sq = decode_target(move)
+            if source_sq == start_sq and target_sq == end_sq:
+                return move
+                
+        return None
+    
+    
     def run(self):
         while True:
             for event in pygame.event.get():
@@ -90,17 +108,22 @@ class Renderer:
                     if self.active_piece_index is not None:
                         self.pieces[self.active_piece_index].move_ip(event.rel)
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    if self.active_piece_index is None:
+                    if self.active_piece_index is None or (self.board.get_colour_occupancy(self.turn) & (1 << self.active_piece_index) == 0):
+                        self.active_piece_index = None
                         continue
                     
                     x, y = event.pos
                     col = x // GAME_SQUARE_SIZE
                     row = y // GAME_SQUARE_SIZE
                     if 0 <= col < 8 and 0 <= row < 8:
+                        print('hi')
                         rank = 7 - row
                         new_square_index = rank * 8 + col
-                        if new_square_index != self.active_piece_index:
+                        matching_move = self.find_matching_move(self.active_piece_index, new_square_index)
+                        print(matching_move)
+                        if matching_move and new_square_index != self.active_piece_index:
                             self.board.make_move(self.active_piece_index, new_square_index)
+                            self.turn = self.turn.opposite
                     
                     self.active_piece_index = None
                     
